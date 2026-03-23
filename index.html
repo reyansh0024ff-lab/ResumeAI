@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Resume Editor</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#6366f1">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- HEADER -->
+        <header class="app-header">
+            <div class="logo">
+                <i class="fa-solid fa-wand-magic-sparkles ai-icon"></i>
+                <h1>ResumeAI</h1>
+            </div>
+            <button class="export-btn" onclick="exportPDF()">
+                <i class="fa-solid fa-download"></i> Export PDF
+            </button>
+        </header>
+
+        <main class="main-content">
+            <!-- LEFT PANEL: Editor -->
+            <section class="editor-panel">
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('personal', this)">Personal</button>
+                    <button class="tab-btn" onclick="switchTab('experience', this)">Experience</button>
+                    <button class="tab-btn" onclick="switchTab('education', this)">Education</button>
+                    <button class="tab-btn" onclick="switchTab('skills', this)">Skills</button>
+                </div>
+
+                <div class="tab-content-container">
+                    <!-- Personal Info Tab -->
+                    <div class="tab-content active" id="tab-personal">
+                        <h2>Personal Information</h2>
+                        <div class="form-group">
+                            <label for="fullName">Full Name</label>
+                            <input type="text" id="fullName" placeholder="e.g. Jane Doe"
+                                oninput="updatePreview('previewName', this.value, 'Your Name')">
+                        </div>
+                        <div class="form-group">
+                            <label for="jobTitle">Job Title</label>
+                            <input type="text" id="jobTitle" placeholder="e.g. Senior Software Engineer"
+                                oninput="updatePreview('previewTitle', this.value, 'Professional Title')">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" id="email" placeholder="jane@example.com"
+                                    oninput="updateContactPreview()">
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Phone</label>
+                                <input type="tel" id="phone" placeholder="+1 234 567 8900"
+                                    oninput="updateContactPreview()">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="location">Location</label>
+                            <input type="text" id="location" placeholder="San Francisco, CA"
+                                oninput="updateContactPreview()">
+                        </div>
+                    </div>
+
+                    <!-- Summary Tab -->
+                    <div class="tab-content" id="tab-summary">
+                        <div class="section-header">
+                            <h2>Professional Summary</h2>
+                            <button class="ai-btn" onclick="enhanceText('summaryText', 'summary')">
+                                <i class="fa-solid fa-sparkles"></i> AI Enhance
+                            </button>
+                        </div>
+                        <p class="helper-text">Write a brief overview of your background and goals.</p>
+                        <textarea id="summaryText" rows="6"
+                            placeholder="Innovative software engineer with 5+ years of experience..."
+                            oninput="updatePreview('previewSummary', this.value, 'Your professional summary will appear here.')"></textarea>
+                    </div>
+
+
+                    <div class="tab-content" id="tab-experience">
+                        <h2>Work Experience</h2>
+                        <div id="experienceList">
+                            <!-- Dynamics injected here -->
+                        </div>
+                        <button class="add-btn" onclick="addExperience()">
+                            <i class="fa-solid fa-plus"></i> Add Experience
+                        </button>
+                    </div>
+
+
+                    <div class="tab-content" id="tab-education">
+                        <h2>Education</h2>
+                        <div id="educationList">
+
+                        </div>
+                        <button class="add-btn" onclick="addEducation()">
+                            <i class="fa-solid fa-plus"></i> Add Education
+                        </button>
+                    </div>
+
+                    <!-- Skills Tab -->
+                    <div class="tab-content" id="tab-skills">
+                        <div class="section-header">
+                            <h2>Skills</h2>
+                            <button class="ai-btn" onclick="enhanceText('skillsText', 'skills')">
+                                <i class="fa-solid fa-lightbulb"></i> AI Suggest
+                            </button>
+                        </div>
+                        <p class="helper-text">Enter your skills separated by commas.</p>
+                        <textarea id="skillsText" rows="4" placeholder="JavaScript, React, Node.js, Python, SQL..."
+                            oninput="renderSkillsPreview()"></textarea>
+                    </div>
+                </div>
+            </section>
+
+            <!-- RIGHT PANEL: Live Preview -->
+            <section class="preview-panel">
+                <div class="resume-preview" id="resumePreview">
+                    <div class="resume-header">
+                        <h1 id="previewName">Your Name</h1>
+                        <h2 id="previewTitle">Professional Title</h2>
+                        <div class="resume-contact" id="previewContact">
+                            <span id="previewEmail" style="display:none;"><i class="fa-solid fa-envelope"></i></span>
+                            <span id="previewPhone" style="display:none;"><i class="fa-solid fa-phone"></i></span>
+                            <span id="previewLocation" style="display:none;"><i
+                                    class="fa-solid fa-location-dot"></i></span>
+                        </div>
+                    </div>
+
+                    <div class="resume-body">
+                        <div class="resume-section">
+                            <h3>Summary</h3>
+                            <p id="previewSummary">Your professional summary will appear here.</p>
+                        </div>
+
+                        <div class="resume-section">
+                            <h3>Experience</h3>
+                            <div id="previewExperienceList">
+                                <div class="preview-item empty-state">Add experience to see it here.</div>
+                            </div>
+                        </div>
+
+                        <div class="resume-section">
+                            <h3>Education</h3>
+                            <div id="previewEducationList">
+                                <div class="preview-item empty-state">Add education to see it here.</div>
+                            </div>
+                        </div>
+
+                        <div class="resume-section">
+                            <h3>Skills</h3>
+                            <div class="skills-list" id="previewSkillsList">
+                                <span class="skill-tag fade-in"
+                                    style="background:transparent; padding:0; color:#9ca3af; font-style:italic;">Add
+                                    skills separated by commas</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- AI Loading Overlay -->
+        <div class="ai-overlay" id="aiOverlay">
+            <div class="ai-modal">
+                <div class="ai-loader">
+                    <i class="fa-solid fa-wand-magic-sparkles fa-spin"></i>
+                </div>
+                <h3>AI is working its magic...</h3>
+                <p id="aiStatusText">Analyzing your content iteratively</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="aiProgress"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Template for Experience Form Item -->
+    <template id="experienceTemplate">
+        <div class="form-card" data-id="{id}">
+            <div class="card-header">
+                <h3>Experience Entry</h3>
+                <button class="remove-btn" onclick="removeExperience('{id}')"><i class="fa-solid fa-trash"></i></button>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Company</label>
+                    <input type="text" class="exp-company" placeholder="Company Name"
+                        oninput="renderExperiencePreview()">
+                </div>
+                <div class="form-group">
+                    <label>Job Title</label>
+                    <input type="text" class="exp-title" placeholder="Job Title" oninput="renderExperiencePreview()">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Start Date</label>
+                    <input type="text" class="exp-start" placeholder="MM/YYYY" oninput="renderExperiencePreview()">
+                </div>
+                <div class="form-group">
+                    <label>End Date</label>
+                    <input type="text" class="exp-end" placeholder="Present or MM/YYYY"
+                        oninput="renderExperiencePreview()">
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="label-with-ai">
+                    <label>Description</label>
+                    <button class="ai-btn-small" onclick="enhanceText('exp-desc-{id}', 'experience')">
+                        <i class="fa-solid fa-sparkles"></i>
+                    </button>
+                </div>
+                <textarea class="exp-desc" id="exp-desc-{id}" rows="4"
+                    placeholder="Describe your responsibilities and achievements..."
+                    oninput="renderExperiencePreview()"></textarea>
+            </div>
+        </div>
+    </template>
+
+    <!-- Template for Education Form Item -->
+    <template id="educationTemplate">
+        <div class="form-card" data-id="{id}">
+            <div class="card-header">
+                <h3>Education Entry</h3>
+                <button class="remove-btn" onclick="removeEducation('{id}')"><i class="fa-solid fa-trash"></i></button>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Institution</label>
+                    <input type="text" class="edu-school" placeholder="University Name"
+                        oninput="renderEducationPreview()">
+                </div>
+                <div class="form-group">
+                    <label>Degree</label>
+                    <input type="text" class="edu-degree" placeholder="B.S. Computer Science"
+                        oninput="renderEducationPreview()">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Graduation Year</label>
+                    <input type="text" class="edu-year" placeholder="YYYY" oninput="renderEducationPreview()">
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(err => console.log('SW setup failed:', err));
+            });
+        }
+    </script>
+    <script src="script.js"></script>
+</body>
+
+</html>
