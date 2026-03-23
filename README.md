@@ -4,4 +4,4 @@
 # cd ..
 # cd ResumeAI
 # ls
-# start resume.html
+@ start resume.html
